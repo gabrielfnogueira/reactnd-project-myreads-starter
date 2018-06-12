@@ -46,7 +46,7 @@ class BooksApp extends React.Component {
   };
 
   moveBook = (book, shelf) => {
-    update(book, shelf).then(book => {
+    update(book, shelf).then(() => {
       this.fetchBooks();
     });
   };

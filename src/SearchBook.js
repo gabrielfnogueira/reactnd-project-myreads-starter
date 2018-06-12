@@ -1,8 +1,56 @@
 import React, { Component } from 'react';
+import { DebounceInput } from 'react-debounce-input';
+import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
+import Book from './Book';
+import { search } from './BooksAPI';
 
 class SearchBook extends Component {
+  state = {
+    query: '',
+    isLoading: false,
+    results: [],
+    wasSearched: false
+  };
+
+  handleInputChange = event => {
+    const query = event.target.value.trim();
+
+    if (query) {
+      this.setState({ query, isLoading: true }, () => this.searchBook(query));
+    } else {
+      this.setState({ query, isLoading: false, results: [] });
+    }
+  };
+
+  searchBook = query => {
+    search(query).then(response => {
+      this.setState(prevState => {
+        prevState.isLoading = false;
+        prevState.results = response.error ? [] : response;
+        prevState.wasSearched = true;
+
+        console.log(response);
+
+        return prevState;
+      });
+    });
+  };
+
   render() {
+    const { query, isLoading, results, wasSearched } = this.state;
+
+    let books = null;
+
+    if (wasSearched) {
+      books =
+        !isLoading && results.length > 0 ? (
+          results.map(book => <Book key={book.id} data={book} moveBook={this.props.moveBook} />)
+        ) : (
+          <div className="empty-list">No books found</div>
+        );
+    }
+
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -18,11 +66,21 @@ class SearchBook extends Component {
                   However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                   you don't find a specific author or title. Every search is limited by search terms.
                 */}
-            <input type="text" placeholder="Search by title or author" />
+            <DebounceInput
+              debounceTimeout={200}
+              type="text"
+              placeholder="Search by title or author"
+              value={query}
+              onChange={this.handleInputChange}
+            />
           </div>
         </div>
         <div className="search-books-results">
-          <ol className="books-grid" />
+          {isLoading ? (
+            <ReactLoading type="spinningBubbles" color="#2e7c31" />
+          ) : (
+            <ol className="books-grid">{books}</ol>
+          )}
         </div>
       </div>
     );
