@@ -7,11 +7,8 @@ import SearchBook from './SearchBook';
 
 class BooksApp extends React.Component {
   state = {
-    books: {
-      currentlyReading: [],
-      wantToRead: [],
-      read: []
-    }
+    books: [],
+    isLoading: false
   };
 
   componentDidMount() {
@@ -19,57 +16,30 @@ class BooksApp extends React.Component {
   }
 
   fetchBooks = () => {
+    this.setState(prevState => ({ ...prevState, isLoading: true }));
     getAll().then(books => {
-      const currentlyReadingList = [];
-      const wantToReadList = [];
-      const readList = [];
-
-      books.forEach(book => {
-        if (book.shelf === 'currentlyReading') {
-          currentlyReadingList.push(book);
-        } else if (book.shelf === 'wantToRead') {
-          wantToReadList.push(book);
-        } else if (book.shelf === 'read') {
-          readList.push(book);
-        }
-      });
-
       this.setState({
-        books: {
-          currentlyReading: currentlyReadingList,
-          wantToRead: wantToReadList,
-          read: readList
-        }
+        books: books,
+        isLoading: false
       });
     });
   };
 
   moveBook = (book, shelf) => {
     update(book, shelf).then(() => {
-      // this.fetchBooks();
-
-      // setting the state 'manually' is faster than making a fetch request
-      const bookAtNewShelf = { ...book, shelf: shelf };
-
-      this.setState(prevState => {
-        return {
-          books: {
-            currentlyReading: prevState.books.currentlyReading,
-            wantToRead: prevState.books.wantToRead,
-            read: prevState.books.read,
-            [book.shelf]: prevState.books[book.shelf].filter(b => b.id !== book.id),
-            [shelf]: [...prevState.books[shelf], bookAtNewShelf]
-          }
-        };
-      });
+      this.fetchBooks();
     });
   };
 
   render() {
-    const { books } = this.state;
+    const { books, isLoading } = this.state;
     return (
       <div className="app">
-        <Route exact path="/" render={() => <BookList books={books} moveBook={this.moveBook} />} />
+        <Route
+          exact
+          path="/"
+          render={() => <BookList books={books} moveBook={this.moveBook} isLoading={isLoading} />}
+        />
         <Route path="/search" render={() => <SearchBook books={books} moveBook={this.moveBook} />} />
       </div>
     );

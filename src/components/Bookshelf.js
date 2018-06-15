@@ -8,7 +8,7 @@ const Bookshelf = ({ title, books, isLoading, moveBook }) => (
     <h2 className="bookshelf-title">{title}</h2>
     <div className="bookshelf-books">
       <ol className="books-grid">
-        {isLoading ? (
+        {books.length === 0 && isLoading ? (
           <div className="loading">
             <ReactLoading type="spinningBubbles" color="#2e7c31" />
           </div>
