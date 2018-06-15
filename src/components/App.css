@@ -175,3 +175,10 @@ body,
   text-align: center;
   font-size: 0.8em;
 }
+
+/* loading */
+
+.loading {
+  display: flex;
+  justify-content: center;
+}
