@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import ReactLoading from 'react-loading';
 import { Link } from 'react-router-dom';
-import Book from './Book';
 import { search } from '../utils/BooksAPI';
+import Book from './Book';
 
 class SearchBook extends Component {
   state = {
@@ -29,8 +29,6 @@ class SearchBook extends Component {
         prevState.isLoading = false;
         prevState.results = response.error ? [] : response;
         prevState.wasSearched = true;
-
-        console.log(response);
 
         return prevState;
       });
